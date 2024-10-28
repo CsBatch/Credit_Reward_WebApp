@@ -14,7 +14,6 @@ export interface IUser extends Document {
     SecurAns1: string;
     SecurQue2: string;
     SecurAns2: string;
-    AccountStatus: boolean;
 }
 
 const userSchema: Schema = new Schema({
@@ -31,7 +30,6 @@ const userSchema: Schema = new Schema({
     SecurAns1: { type: String, required: true },
     SecurQue2: { type: String, required: true },
     SecurAns2: { type: String, required: true },
-    AccountStatus: { type: Boolean, required: true }
 });
 
 export const User = mongoose.model<IUser>('User', userSchema);

@@ -10,16 +10,16 @@ export class UserValidation {
             Password: Joi.string().min(6).max(12).required(),
             Address: Joi.string().required(),
             DateOfBirth: Joi.date().required(),
-            SSN: Joi.number().min(4).max(4).required(),
+            SSN: Joi.number().required(),
             AnnualIncome: Joi.number().required(),
             SecurQue1: Joi.string().required(),
             SecurAns1: Joi.string().required(),
             SecurQue2: Joi.string().required(),
             SecurAns2: Joi.string().required()
         })
-        console.log("Request Sent")
+        
         const isValid = await UserValidation.validate(req.body, res, schema);
-        console.log(req.body)
+        
         if (isValid) {
             next();
         }
@@ -30,9 +30,9 @@ export class UserValidation {
             Email: Joi.string().email().required(),
             Password: Joi.string().min(6).max(12).required(),
         })
-        console.log("Request Sent")
+        
         const isValid = await UserValidation.validate(req.body, res, schema);
-        console.log(req.body)
+        
         if (isValid) {
             next();
         }
@@ -43,11 +43,25 @@ export class UserValidation {
         const schema = Joi.object().keys({
             Email: Joi.string().email().required(),
             SecurQue: Joi.string().required(),
-            SecurAns: Joi.string().required(),
+            SecurAns: Joi.string().required()
         })
-        console.log("Request Sent")
+        
         const isValid = await UserValidation.validate(req.body, res, schema);
-        console.log(req.body)
+        
+        if (isValid) {
+            next();
+        }
+    }
+
+
+    static async resetPassword(req: any, res: any, next: any) {
+        const schema = Joi.object().keys({
+            Email: Joi.string().email().required(),
+            Password: Joi.string().min(6).max(12).required()
+        })
+        
+        const isValid = await UserValidation.validate(req.body, res, schema);
+        
         if (isValid) {
             next();
         }
@@ -72,31 +86,8 @@ export class UserValidation {
             }
         }
 
-
-
         catch (err) {
             console.log(err);
         }
     };
 }
-
-
-/**
- 
-Joi.string()
-
-
-FirstName: Joi.string(), 
-LastName: Joi.string(), 
-PhoneNumber: Joi.string(), 
-Email: Joi.string(), 
-Password: Joi.string(), 
-Address: Joi.string(), 
-DateOfBirth: Joi.string(),
-SSN: Joi.string(), 
-AnnualIncome: Joi.string(), 
-SecurQue1: Joi.string(), 
-SecurAns1: Joi.string(), 
-SecurQue2: Joi.string(), 
-SecurAns2: Joi.string() 
- */
