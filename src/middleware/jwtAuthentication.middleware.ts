@@ -1,14 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-
 dotenv.config();
-
 interface AuthenticatedRequest extends Request {
     user?: any;
 }
 const tokenBlacklist = new Set<string>();
-
 export const authenticateJWT = (req: AuthenticatedRequest, res: Response, next: NextFunction): any => {
     const token = req.header('Authorization');
     if (!token) {
@@ -25,7 +22,6 @@ export const authenticateJWT = (req: AuthenticatedRequest, res: Response, next: 
         return res.status(400).json({ message: 'Invalid token' });
     }
 };
-
 export const blacklistToken = (token: string) => {
     tokenBlacklist.add(token);
 };

@@ -1,5 +1,4 @@
 import Joi from 'joi';
-
 export class UserValidation {
     static async createUser(req: any, res: any, next: any) {
         const schema = Joi.object().keys({
@@ -17,57 +16,43 @@ export class UserValidation {
             SecurQue2: Joi.string().required(),
             SecurAns2: Joi.string().required()
         })
-        
         const isValid = await UserValidation.validate(req.body, res, schema);
         
         if (isValid) {
             next();
         }
     }
-
     static async login(req: any, res: any, next: any) {
         const schema = Joi.object().keys({
             Email: Joi.string().email().required(),
             Password: Joi.string().min(6).max(12).required(),
-        })
-        
+        })   
         const isValid = await UserValidation.validate(req.body, res, schema);
-        
         if (isValid) {
             next();
         }
     }
-
-
     static async forgetPassword(req: any, res: any, next: any) {
         const schema = Joi.object().keys({
             Email: Joi.string().email().required(),
             SecurQue: Joi.string().required(),
             SecurAns: Joi.string().required()
-        })
-        
+        })   
         const isValid = await UserValidation.validate(req.body, res, schema);
-        
         if (isValid) {
             next();
         }
     }
-
-
     static async resetPassword(req: any, res: any, next: any) {
         const schema = Joi.object().keys({
             Email: Joi.string().email().required(),
             Password: Joi.string().min(6).max(12).required()
-        })
-        
+        })   
         const isValid = await UserValidation.validate(req.body, res, schema);
-        
         if (isValid) {
             next();
         }
     }
-
-
     static async validate(body: any, res: any, schema: any) {
         try {
             const validation = await schema.validate(body, { abortEarly: false });
@@ -85,7 +70,6 @@ export class UserValidation {
                 return true;
             }
         }
-
         catch (err) {
             console.log(err);
         }

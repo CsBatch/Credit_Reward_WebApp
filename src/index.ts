@@ -1,6 +1,7 @@
 import express from 'express';
 import connectDB from './config/db.config';
 import authenticationRoutes from './routes/authentication.routes'
+import cardDataRoutes from './routes/cardData.routes'
 const app = express();
 
 const PORT = process.env.PORT;
@@ -16,6 +17,7 @@ app.get('/', (req, res)=>{
 connectDB();
 
 app.use('/auth', authenticationRoutes)
+app.use('/card', cardDataRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server is running on port http://localhost:${PORT}`);

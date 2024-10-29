@@ -1,5 +1,4 @@
 import mongoose, { Schema, Document } from 'mongoose';
-
 export interface IUser extends Document {
     FirstName: string; 
     LastName: string;
@@ -15,7 +14,6 @@ export interface IUser extends Document {
     SecurQue2: string;
     SecurAns2: string;
 }
-
 const userSchema: Schema = new Schema({
     FirstName: { type: String, required: true },
     LastName: { type: String, required: true },
@@ -31,15 +29,4 @@ const userSchema: Schema = new Schema({
     SecurQue2: { type: String, required: true },
     SecurAns2: { type: String, required: true },
 });
-
 export const User = mongoose.model<IUser>('User', userSchema);
-
-
-
-/**
- * 
-
-FirstName, LastName, PhoneNumber, Email, Password, Address, DateOfBirth, SSN, AnnualIncome, SecurQue1, SecurAns1, SecurQue2, SecurAns2, AccountStatus
-
-
- */

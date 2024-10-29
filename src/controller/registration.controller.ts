@@ -3,17 +3,14 @@ import { User } from '../modals/registration.modals';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { blacklistToken } from '../middleware/jwtAuthentication.middleware';
-
-
-
 // -----------------------Registration Endpoint---------------------------------
 export const register = async (req: Request, res: Response): Promise<any> => {
-    const { FirstName, LastName, PhoneNumber, Email, Password, Address, DateOfBirth, SSN, AnnualIncome, SecurQue1, SecurAns1, SecurQue2, SecurAns2 } = req.body;
+    const { FirstName, LastName, PhoneNumber, Email, Password, ...OtherData } = req.body;
     try {
         const user = await User.findOne({ Email });
         if (!user) {
             const hashPassword = await bcrypt.hash(Password, 10);
-            const newUser = new User({ FirstName, LastName, PhoneNumber, Email, Password: hashPassword, Address, DateOfBirth, SSN, AnnualIncome, SecurQue1, SecurAns1, SecurQue2, SecurAns2 });
+            const newUser = new User({ FirstName, LastName, PhoneNumber, Email, Password: hashPassword, ...OtherData });
             await newUser.save();
             return res.status(201).json({ message: 'Rgistration Successfull' });
         }
@@ -24,8 +21,6 @@ export const register = async (req: Request, res: Response): Promise<any> => {
         return res.status(500).json({ error: 'Failed to register user', details: error.message });
     }
 };
-
-
 // -----------------------Login Endpoint---------------------------------
 export const login = async (req: Request, res: Response): Promise<any> => {
     const { Email, Password } = req.body;
@@ -42,9 +37,6 @@ export const login = async (req: Request, res: Response): Promise<any> => {
         return res.status(501).json({ error: 'Inernal Server Error' });
     }
 };
-
-
-
 // -----------------------Forget Password Endpoint---------------------------------
 export const forgetPassword = async (req: Request, res: Response): Promise<any> => {
     const { Email, SecurQue, SecurAns } = req.body;
@@ -72,9 +64,7 @@ export const forgetPassword = async (req: Request, res: Response): Promise<any> 
         return res.status(501).json({ error: 'Inernal Server Error' });
     }
 };
-
-
-
+// -----------------------Reset Password Endpoint---------------------------------
 export const resetPassword = async (req: Request, res: Response): Promise<any> => {
     const { Email, Password } = req.body;
     try {
@@ -90,36 +80,44 @@ export const resetPassword = async (req: Request, res: Response): Promise<any> =
         return res.status(501).json({ error: 'Inernal Server Error' });
     }
 };
-
-
-
+// -----------------------Delete Account Endpoint---------------------------------
 export const deleteAccount = async (req: Request, res: Response): Promise<any> => {
     const { Email } = req.body;
     try {
-        if(await User.findOneAndDelete({ Email })){
+        if (await User.findOneAndDelete({ Email })) {
             return res.status(200).json({ message: 'Account deleted successfully' });
         }
-        else{
+        else {
             return res.status(400).json({ message: 'User Does not exist' });
         }
     } catch (error) {
         return res.status(501).json({ error: 'Inernal Server Error' });
     }
 };
-
-
-
+// -----------------------Logout Endpoint---------------------------------
 export const logout = async (req: Request, res: Response): Promise<any> => {
-
     console.log("inside logout .. ")
     const token = req.header('Authorization');
     console.log("token ..", token)
-
     try {
         if (token) {
             blacklistToken(token); // Add token to the blacklist
         }
         res.status(200).json({ message: 'Logged out successfully.' });
+    } catch (error) {
+        return res.status(501).json({ error: 'Inernal Server Error' });
+    }
+};
+// -----------------------Get All Data Endpoint---------------------------------
+export const getData = async (req: Request, res: Response): Promise<any> => {
+    const { Email } = req.body;
+    try {
+        const user = await User.findOne({ Email });
+        if (!user || !(await bcrypt.compare(req.body.Password, user.Password))) {
+            return res.status(401).json({ message: 'User does not exist' });
+        }
+        const { Password, SSN, SecurQue1, SecurQue2, SecurAns1, SecurAns2, ...safeUserData } = user.toObject();
+        return res.status(200).json(safeUserData);
     } catch (error) {
         return res.status(501).json({ error: 'Inernal Server Error' });
     }
