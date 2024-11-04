@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import { Admin } from '../modals/admin.modals';
+import { User } from '../modals/registration.modals';
+import { Bank } from '../modals/bank.modals';
+import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
@@ -7,7 +10,6 @@ import bcrypt from 'bcrypt';
 
 
 // -----------------------Registration Endpoint---------------------------------
-
 
 // export const register = async (req: Request, res: Response): Promise<any> => {
 //     const { Name, Email, Password} = req.body;
@@ -46,3 +48,97 @@ export const login = async (req: Request, res: Response): Promise<any> => {
         return res.status(501).json({ error: 'Inernal Server Error' });
     }
 };
+
+
+export const getAllUser = async (res: Response): Promise<any> => {
+    try {
+        const user = await User.find();
+        if (!user) {
+            return res.status(200).json({ message: 'No Users' });
+        }
+        const userData = user.map((element) => {
+            const id = element._id
+            const name = element.FirstName + " " + element.LastName
+            const email = element.Email
+            const phone = element.PhoneNumber
+            const status = element.AccountStatus
+
+            return { id, name, email, phone, status }
+        })
+        return res.status(200).json(userData);
+    } catch (error) {
+        return res.status(501).json({ error: 'Inernal Server Error' });
+    }
+};
+
+export const changeStatus = async (req: Request, res: Response): Promise<any> => {
+    const userId = req.params.id;
+    const newStatus = req.body.status;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(200).json({ error: 'Invalid User ID format' });
+    }
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { AccountStatus: newStatus },
+            { new: true }
+        );
+        if (!updatedUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        return res.status(200).json({ success: true, user: updatedUser });
+    } catch (error) {
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+export const addBank = async (req: Request, res: Response): Promise<any> => {
+    const BankName = req.body.bankName;
+    console.log(BankName)
+    try {
+        const bank = await Bank.findOne({ BankName });
+        if (bank) {
+            return res.status(404).json({ error: 'Bank Already Exists' });
+        }
+        await Bank.insertMany({ BankName, ActiveStatus: true });
+        return res.status(200).json({ success: true, bank });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+}
+
+export const addCard = async (req: Request, res: Response): Promise<any> => {
+    const { BankName, CardName, ...otherInfo } = req.body;
+
+    try {
+        const bank = await Bank.findOne({ BankName });
+        console.log(bank)
+        if (!bank) {
+            return res.status(404).json({ error: 'Bank not found' });
+        }
+        const newCard = { CardName, ...otherInfo, Subscribers: 0 };
+        bank.BankCards.push(newCard);
+        await bank.save();
+        return res.status(200).json({ success: true, bank });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+}
+
+/*
+    FirstName: string;
+    LastName: string;
+    PhoneNumber: string;
+    Email: string;
+    Password: string;
+    Address: string;
+    DateOfBirth: Date;
+    SSN: number;
+    AnnualIncome: number;
+    AccountStatus: boolean;
+    SecurQue1: string;
+    SecurAns1: string;
+    SecurQue2: string;
+    SecurAns2: string; 
+ */

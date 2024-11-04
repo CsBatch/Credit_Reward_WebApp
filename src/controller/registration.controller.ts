@@ -5,12 +5,12 @@ import bcrypt from 'bcrypt';
 import { blacklistToken } from '../middleware/jwtAuthentication.middleware';
 // -----------------------Registration Endpoint---------------------------------
 export const register = async (req: Request, res: Response): Promise<any> => {
-    const { FirstName, LastName, PhoneNumber, Email, Password, ...OtherData } = req.body;
+    const { Email, Password, ...OtherData } = req.body;
     try {
         const user = await User.findOne({ Email });
         if (!user) {
             const hashPassword = await bcrypt.hash(Password, 10);
-            const newUser = new User({ FirstName, LastName, PhoneNumber, Email, Password: hashPassword, ...OtherData });
+            const newUser = new User({ Email, Password: hashPassword, AccountStatus: true,...OtherData });
             await newUser.save();
             return res.status(201).json({ message: 'Rgistration Successfull' });
         }
@@ -29,6 +29,10 @@ export const login = async (req: Request, res: Response): Promise<any> => {
         if (!user || !(await bcrypt.compare(Password, user.Password))) {
             return res.status(401).json({ message: 'User not exist' })
         }
+        else if(user.AccountStatus === false){
+            return res.status(401).json({ message: 'Account Dissabled By Admin' })
+        }
+
         else {
             const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret');
             return res.json({ token });

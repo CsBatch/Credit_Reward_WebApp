@@ -20,12 +20,12 @@ export interface ICardDetails extends Document {
     Email: string;
     cardDetails: ICard[];
 }
-const TransactionDetailsSchema = new Schema<ITransactionDetails>({
+const transactionDetailsSchema = new Schema<ITransactionDetails>({
     Date: { type: Date, required: true },
     Amount: { type: Number, required: true },
     MembershipID: { type: String, required: true }
 });
-const CardSchema = new Schema<ICard>({
+const cardSchema = new Schema<ICard>({
     CardName: { type: String, required: true },
     CardHolderName: { type: String, required: true },
     CardNumber: { type: String, unique:true, required: true },
@@ -34,15 +34,15 @@ const CardSchema = new Schema<ICard>({
     CardType: { type: String },
     BonusReward: { type: Number },
     RedemptionStatus: { type: Boolean },
-    transactionDetails: [TransactionDetailsSchema]
+    transactionDetails: [transactionDetailsSchema]
 });
-const CardDetailsSchema: Schema = new Schema<ICardDetails>({
+const cardDetailsSchema: Schema = new Schema<ICardDetails>({
     User: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true,
     },
     Email: { type: String, required: true, unique: true },
-    cardDetails: [CardSchema]  
+    cardDetails: [cardSchema]  
 });
-export const CardDetails = mongoose.model<ICardDetails>('CardDetails', CardDetailsSchema);
+export const CardDetails = mongoose.model<ICardDetails>('CardDetails', cardDetailsSchema);

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 export interface IUser extends Document {
-    FirstName: string; 
+    FirstName: string;
     LastName: string;
     PhoneNumber: string;
     Email: string;
@@ -9,6 +9,7 @@ export interface IUser extends Document {
     DateOfBirth: Date;
     SSN: number;
     AnnualIncome: number;
+    AccountStatus: boolean;
     SecurQue1: string;
     SecurAns1: string;
     SecurQue2: string;
@@ -20,10 +21,11 @@ const userSchema: Schema = new Schema({
     PhoneNumber: { type: String, required: true },
     Email: { type: String, required: true, unique: true },
     Password: { type: String, required: true },
+    AccountStatus: { type: Boolean, required: true },
     Address: { type: String, required: true },
     DateOfBirth: { type: Date, required: true },
     SSN: { type: Number, required: true },
-    AnnualIncome : { type: Number, required: true },
+    AnnualIncome: { type: Number, required: true },
     SecurQue1: { type: String, required: true },
     SecurAns1: { type: String, required: true },
     SecurQue2: { type: String, required: true },
