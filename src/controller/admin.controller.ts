@@ -71,7 +71,7 @@ export const getAllUser = async (res: Response): Promise<any> => {
     }
 };
 
-export const changeStatus = async (req: Request, res: Response): Promise<any> => {
+export const changeUserStatus = async (req: Request, res: Response): Promise<any> => {
     const userId = req.params.id;
     const newStatus = req.body.status;
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -92,7 +92,7 @@ export const changeStatus = async (req: Request, res: Response): Promise<any> =>
     }
 };
 
-
+// <----------------------------------- Bank Management ------------------------->
 export const addBank = async (req: Request, res: Response): Promise<any> => {
     const BankName = req.body.bankName;
     console.log(BankName)
@@ -108,6 +108,56 @@ export const addBank = async (req: Request, res: Response): Promise<any> => {
     }
 }
 
+
+export const showBank = async (res: Response): Promise<any> => {
+    try {
+        const bank = await Bank.find();
+        if (!bank) {
+            return res.status(200).json({ message: 'No banks' });
+        }
+        
+        return res.status(200).json(bank);
+    } catch (error) {
+        return res.status(501).json({ error: 'Inernal Server Error' });
+    }
+};
+
+export const removeBank = async (req: Request, res: Response): Promise<any> => {
+    const BankName = req.body.bankName;
+    console.log(BankName)
+    try {
+        const bank = await Bank.findOneAndDelete({ BankName });
+        return res.status(200).json({ success: true, bank });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+}
+
+
+
+export const changeBankStatus = async (req: Request, res: Response): Promise<any> => {
+    const bankId = req.params.id;
+    const newStatus = req.body.status;
+    if (!mongoose.Types.ObjectId.isValid(bankId)) {
+        return res.status(200).json({ error: 'Invalid User ID format' });
+    }
+    try {
+        const updatedBank = await Bank.findByIdAndUpdate(
+            bankId,
+            { AccountStatus: newStatus },
+            { new: true }
+        );
+        if (!updatedBank) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        return res.status(200).json({ success: true, bank: updatedBank });
+    } catch (error) {
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+// <----------------------------------- Card Management ------------------------->
 export const addCard = async (req: Request, res: Response): Promise<any> => {
     const { BankName, CardName, ...otherInfo } = req.body;
 
@@ -125,6 +175,64 @@ export const addCard = async (req: Request, res: Response): Promise<any> => {
         return res.status(500).json({ error });
     }
 }
+
+export const showCard = async (req: Request, res: Response): Promise<any> => {
+    const BankName = req.body.bankName;
+    try {
+        const bank = await Bank.findOne({ BankName });
+        if (!bank) {
+            return res.status(404).json({ error: 'Bank not found' });
+        }
+        return res.status(200).json(bank.BankCards);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+export const removeCard = async (req: Request, res: Response): Promise<any> => {
+    const BankName = req.body.bankName;
+    const CardId = req.params.id;
+    try {
+        const bank = await Bank.findOne({ BankName });
+        if (!bank) {
+            return res.status(404).json({ error: 'Bank not found' });
+        }
+        const cardDelete = await Bank.findOneAndDelete({ _id: CardId });
+        bank.save();
+        return res.status(200).json({ success: true, cardDelete });
+        
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+}
+
+
+export const changeBankCardStatus = async (req: Request, res: Response): Promise<any> => {
+    const bankId = req.params.Bankid;
+    const cardId = req.params.Cardid;
+    const newStatus = req.body.status;
+    if (!mongoose.Types.ObjectId.isValid(bankId)) {
+        return res.status(200).json({ error: 'Invalid User ID format' });
+    }
+    try {
+        const bank = await Bank.findOne({bankId});
+        if (!bank) {
+            return res.status(404).json({ error: 'Bank not found' });
+        }
+        const updatedCard = await Bank.findOneAndUpdate(
+            { _id: cardId },
+            { AccountStatus: newStatus },
+            { new: true }
+        );
+
+        if (!updatedCard) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        return res.status(200).json({ success: true, card: updatedCard });
+    } catch (error) {
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
 
 /*
     FirstName: string;
